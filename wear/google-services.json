@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "YOUR_PROJECT_NUMBER",
+    "project_id": "v-trainer-project",
+    "storage_bucket": "v-trainer-project.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "YOUR_WEAR_SDK_APP_ID",
+        "android_client_info": {
+          "package_name": "com.vtrainer.wear"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "YOUR_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

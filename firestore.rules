@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Users collection
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isOwner(userId);
+      allow delete: if false; // Prevent deletion
+    }
+    
+    // Exercises collection (read-only for all authenticated users)
+    match /exercises/{exerciseId} {
+      allow read: if isAuthenticated();
+      allow write: if false; // Only admins via Cloud Functions
+    }
+    
+    // Workout plans collection
+    match /workout_plans/{planId} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if isOwner(request.resource.data.userId);
+      allow update: if isOwner(resource.data.userId);
+      allow delete: if isOwner(resource.data.userId);
+    }
+    
+    // Training logs collection
+    match /training_logs/{logId} {
+      allow read: if isOwner(resource.data.userId);
+      allow create: if isOwner(request.resource.data.userId)
+                    && request.resource.data.timestamp is timestamp;
+      allow update: if false; // Logs are immutable
+      allow delete: if isOwner(resource.data.userId);
+    }
+  }
+}
