@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">V-Trainer</string>
+    <string name="dashboard">Dashboard</string>
+    <string name="workouts">Treinos</string>
+    <string name="history">Histórico</string>
+    <string name="exercises">Exercícios</string>
+    <string name="profile">Perfil</string>
+    <string name="start_workout">Iniciar Treino</string>
+    <string name="complete_set">Completar Série</string>
+    <string name="rest_timer">Descanso</string>
+    <string name="finish_workout">Finalizar Treino</string>
+</resources>
