@@ -1,8 +1,8 @@
 package com.vtrainer.app.data.local.dao
 
 import androidx.room.*
-import com.vtrainer.app.data.local.entities.SyncStatus
 import com.vtrainer.app.data.local.entities.TrainingLogEntity
+import com.vtrainer.app.domain.models.SyncStatus
 import kotlinx.coroutines.flow.Flow
 
 /**

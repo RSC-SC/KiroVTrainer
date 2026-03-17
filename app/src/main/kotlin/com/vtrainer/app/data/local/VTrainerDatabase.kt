@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import com.vtrainer.app.data.local.dao.ExerciseDao
 import com.vtrainer.app.data.local.dao.TrainingLogDao
 import com.vtrainer.app.data.local.dao.WorkoutPlanDao
@@ -22,6 +23,7 @@ import com.vtrainer.app.data.local.entities.WorkoutPlanEntity
  * 
  * Requirements: 12.1 - Offline-First Data Architecture with Room database
  */
+
 @Database(
     entities = [
         WorkoutPlanEntity::class,
@@ -29,8 +31,10 @@ import com.vtrainer.app.data.local.entities.WorkoutPlanEntity
         ExerciseEntity::class
     ],
     version = 1,
-    exportSchema = true
+    exportSchema = false
 )
+
+@TypeConverters(Converters::class)
 abstract class VTrainerDatabase : RoomDatabase() {
     
     /**

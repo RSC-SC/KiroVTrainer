@@ -2,6 +2,7 @@ package com.vtrainer.app.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.vtrainer.app.domain.models.SyncStatus
 
 /**
  * Room entity for storing workout plans locally.
@@ -20,23 +21,3 @@ data class WorkoutPlanEntity(
     val syncStatus: SyncStatus,
     val lastSyncAttempt: Long?
 )
-
-/**
- * Sync status for offline-first data synchronization.
- */
-enum class SyncStatus {
-    /**
-     * Data is synchronized with Firestore
-     */
-    SYNCED,
-    
-    /**
-     * Data is waiting to be synchronized to Firestore
-     */
-    PENDING_SYNC,
-    
-    /**
-     * Synchronization attempt failed, will retry
-     */
-    SYNC_FAILED
-}

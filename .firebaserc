@@ -1,5 +1,7 @@
 {
   "projects": {
-    "default": "v-trainer-project"
-  }
+    "default": "v-trainer-934c6"
+  },
+  "targets": {},
+  "etags": {}
 }

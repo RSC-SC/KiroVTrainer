@@ -2,6 +2,7 @@ package com.vtrainer.app.data.local.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.vtrainer.app.domain.models.SyncStatus
 
 /**
  * Room entity for storing training logs locally.
