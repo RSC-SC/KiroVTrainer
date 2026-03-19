@@ -118,6 +118,9 @@ dependencies {
     // DataStore
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     
+    // WorkManager
+    implementation("androidx.work:work-runtime-ktx:2.9.0")
+    
     // Testing
     testImplementation("junit:junit:4.13.2")
     testImplementation("io.kotest:kotest-runner-junit5:5.8.0")

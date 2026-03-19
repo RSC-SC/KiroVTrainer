@@ -3,6 +3,7 @@ package com.vtrainer.app
 import android.app.Application
 import com.google.firebase.FirebaseApp
 import com.vtrainer.app.data.local.VTrainerDatabase
+import com.vtrainer.app.services.BackgroundSyncScheduler
 
 class VTrainerApplication : Application() {
     
@@ -23,7 +24,9 @@ class VTrainerApplication : Application() {
         // Room Database is initialized lazily via the database property
         // This ensures the database is only created when first accessed
         
-        // TODO: Initialize WorkManager for background sync
+        // Schedule background sync every 15 minutes when connected
+        BackgroundSyncScheduler.schedule(this)
+        
         // TODO: Setup notification channels
     }
 }

@@ -44,7 +44,7 @@ Este plano de implementação organiza o desenvolvimento do V-Trainer em fases i
     - Configure database builder with fallback strategies
     - _Requirements: 12.1_
 
-- [-] 3. Define core domain models
+- [x] 3. Define core domain models
   - [x] 3.1 Create domain models (WorkoutPlan, TrainingLog, Exercise, PersonalRecord)
     - Implement data classes with proper validation
     - Include all fields from design document
@@ -85,14 +85,14 @@ Este plano de implementação organiza o desenvolvimento do V-Trainer em fases i
     - Use fast-check to generate valid TrainingLogs
 
 - [ ] 5. Implement syncWorkout Cloud Function
-  - [-] 5.1 Create HTTPS callable function with authentication
+  - [x] 5.1 Create HTTPS callable function with authentication
     - Validate Firebase Auth token from context
     - Parse and validate request data
     - Save TrainingLog to Firestore with server timestamp
     - Return success or error response
     - _Requirements: 6.1, 6.2, 6.3, 6.4, 17.2_
   
-  - [ ] 5.2 Write unit tests for syncWorkout function
+  - [x] 5.2 Write unit tests for syncWorkout function
     - Test authentication validation
     - Test successful save to Firestore
     - Test error responses for invalid data
@@ -180,70 +180,70 @@ Este plano de implementação organiza o desenvolvimento do V-Trainer em fases i
     - **Property 11: Workout Plan Creation Preserves Exercise Count**
     - **Validates: Requirements 3.1, 3.2, 3.4**
   
-  - [ ] 11.3 Write property test for workout plan configuration persistence
+  - [x] 11.3 Write property test for workout plan configuration persistence
     - **Property 12: Workout Plan Configuration Persistence**
     - **Validates: Requirements 3.3, 3.4**
   
-  - [ ] 11.4 Write property test for workout plan deletion
+  - [x] 11.4 Write property test for workout plan deletion
     - **Property 25: Workout Plan Deletion Removes from User's List**
     - **Validates: Requirements 3.6**
   
-  - [ ] 11.5 Write unit tests for offline-first behavior
+  - [x] 11.5 Write unit tests for offline-first behavior
     - Test save when Firestore unavailable
     - Test sync retry logic
     - _Requirements: 12.3, 12.5_
 
 
 - [ ] 12. Implement TrainingLogRepository with sync management
-  - [ ] 12.1 Create TrainingLogRepository interface and implementation
+  - [x] 12.1 Create TrainingLogRepository interface and implementation
     - Implement saveTrainingLog() with local save and background sync
     - Implement getTrainingHistory() with Flow from Room
     - Implement syncPendingLogs() with exponential backoff retry
     - _Requirements: 4.6, 5.6, 6.5, 12.3, 12.5_
   
-  - [ ] 12.2 Write property test for offline cache synchronization
+  - [x] 12.2 Write property test for offline cache synchronization
     - **Property 15: Offline Cache Synchronization Completeness**
     - **Validates: Requirements 6.5, 12.5**
   
-  - [ ] 12.3 Write property test for conflict resolution by timestamp
+  - [x] 12.3 Write property test for conflict resolution by timestamp
     - **Property 16: Conflict Resolution by Timestamp**
     - **Validates: Requirements 12.6**
   
-  - [ ] 12.4 Write unit tests for sync retry logic
+  - [x] 12.4 Write unit tests for sync retry logic
     - Test exponential backoff
     - Test max retry attempts
     - _Requirements: 6.5_
 
 - [ ] 13. Implement ExerciseRepository with caching
-  - [ ] 13.1 Create ExerciseRepository interface and implementation
+  - [x] 13.1 Create ExerciseRepository interface and implementation
     - Implement getExercises() with Room cache and Firestore fallback
     - Implement searchExercises() with local search
     - Implement filterByMuscleGroup() with local filtering
     - Cache exercise data for offline access
     - _Requirements: 2.1, 2.2, 2.5, 12.1_
   
-  - [ ] 13.2 Write property test for exercise data completeness
+  - [x] 13.2 Write property test for exercise data completeness
     - **Property 9: Exercise Library Data Completeness**
     - **Validates: Requirements 2.1, 2.4**
   
-  - [ ] 13.3 Write property test for muscle group filter correctness
+  - [x] 13.3 Write property test for muscle group filter correctness
     - **Property 10: Exercise Filter by Muscle Group Correctness**
     - **Validates: Requirements 2.2**
   
-  - [ ] 13.4 Write unit tests for search and filter
+  - [x] 13.4 Write unit tests for search and filter
     - Test search by name
     - Test filter by muscle group
     - _Requirements: 2.2_
 
 
-- [ ] 14. Implement background sync service
+- [x] 14. Implement background sync service
   - Create WorkManager periodic task for syncing pending logs
   - Run every 15 minutes when device has connectivity
   - Use exponential backoff for failed syncs
   - Update sync status in Room after successful sync
   - _Requirements: 6.5, 12.5_
 
-- [ ] 15. Checkpoint - Test repository layer
+- [x] 15. Checkpoint - Test repository layer
   - Test offline-first behavior by disabling network
   - Verify pending syncs are retried when connectivity restored
   - Test conflict resolution with concurrent updates
@@ -251,42 +251,42 @@ Este plano de implementação organiza o desenvolvimento do V-Trainer em fases i
 
 ### Phase 4: Mobile App - Core ViewModels and Use Cases
 
-- [ ] 16. Implement authentication flow
-  - [ ] 16.1 Create AuthViewModel with Firebase Authentication
+- [x] 16. Implement authentication flow
+  - [x] 16.1 Create AuthViewModel with Firebase Authentication
     - Implement Google Sign-In
     - Implement Samsung Account Sign-In
     - Handle authentication state changes
     - _Requirements: 1.5, 17.1_
   
-  - [ ] 16.2 Write property test for authentication requirement
+  - [x] 16.2 Write property test for authentication requirement
     - **Property 20: Authentication Required for Data Access**
     - **Validates: Requirements 6.2, 17.1, 17.2**
   
-  - [ ] 16.3 Write property test for user data isolation
+  - [x] 16.3 Write property test for user data isolation
     - **Property 21: User Data Isolation**
     - **Validates: Requirements 17.3**
 
 
 - [ ] 17. Implement DashboardViewModel
-  - [ ] 17.1 Create DashboardViewModel with state management
+  - [x] 17.1 Create DashboardViewModel with state management
     - Load next scheduled workout from WorkoutRepository
     - Calculate weekly stats (total workouts, volume)
     - Load recent personal records from user document
     - Expose DashboardState as StateFlow
     - _Requirements: 14.1, 14.2, 14.3, 14.4_
   
-  - [ ] 17.2 Write property test for weekly aggregation correctness
+  - [x] 17.2 Write property test for weekly aggregation correctness
     - **Property 19: Weekly and Monthly Aggregation Correctness**
     - **Validates: Requirements 7.4, 10.5, 14.3**
   
-  - [ ] 17.3 Write unit tests for DashboardViewModel
+  - [~] 17.3 Write unit tests for DashboardViewModel
     - Test loading next workout
     - Test weekly stats calculation
     - Test loading recent records
     - _Requirements: 14.2, 14.3_
 
 - [ ] 18. Implement WorkoutExecutionViewModel
-  - [ ] 18.1 Create WorkoutExecutionViewModel with workout flow logic
+  - [x] 18.1 Create WorkoutExecutionViewModel with workout flow logic
     - Manage current exercise and set progression
     - Handle set completion with automatic rest timer start
     - Allow weight and reps adjustment during session
@@ -294,15 +294,15 @@ Este plano de implementação organiza o desenvolvimento do V-Trainer em fases i
     - Track workout duration
     - _Requirements: 4.1, 4.2, 4.3, 4.5, 4.6_
   
-  - [ ] 18.2 Write property test for rest timer auto-start
+  - [~] 18.2 Write property test for rest timer auto-start
     - **Property 7: Rest Timer Auto-Start on Set Completion**
     - **Validates: Requirements 4.3, 5.3, 13.1**
   
-  - [ ] 18.3 Write property test for in-session adjustment persistence
+  - [~] 18.3 Write property test for in-session adjustment persistence
     - **Property 26: In-Session Weight/Reps Adjustment Persistence**
     - **Validates: Requirements 4.5, 5.5**
   
-  - [ ] 18.4 Write unit tests for WorkoutExecutionViewModel
+  - [~] 18.4 Write unit tests for WorkoutExecutionViewModel
     - Test set completion flow
     - Test rest timer countdown
     - Test workout completion and save
@@ -310,7 +310,7 @@ Este plano de implementação organiza o desenvolvimento do V-Trainer em fases i
 
 
 - [ ] 19. Implement WorkoutPlanViewModel
-  - [ ] 19.1 Create WorkoutPlanViewModel for plan creation and editing
+  - [~] 19.1 Create WorkoutPlanViewModel for plan creation and editing
     - Load workout plans from WorkoutRepository
     - Handle plan creation with exercise selection
     - Handle plan editing (add/remove exercises, configure sets/reps/rest)
@@ -318,35 +318,35 @@ Este plano de implementação organiza o desenvolvimento do V-Trainer em fases i
     - Delete plans from repository
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6_
   
-  - [ ] 19.2 Write unit tests for WorkoutPlanViewModel
+  - [~] 19.2 Write unit tests for WorkoutPlanViewModel
     - Test plan creation
     - Test exercise addition
     - Test plan save and delete
     - _Requirements: 3.4, 3.6_
 
 - [ ] 20. Implement TrainingHistoryViewModel
-  - [ ] 20.1 Create TrainingHistoryViewModel for history display
+  - [~] 20.1 Create TrainingHistoryViewModel for history display
     - Load training logs from TrainingLogRepository
     - Sort logs by timestamp descending
     - Calculate weekly and monthly progress charts
     - Highlight personal records
     - _Requirements: 7.1, 7.2, 7.3, 7.4, 7.5_
   
-  - [ ] 20.2 Write property test for chronological ordering
+  - [~] 20.2 Write property test for chronological ordering
     - **Property 13: Training History Chronological Ordering**
     - **Validates: Requirements 7.1**
   
-  - [ ] 20.3 Write property test for training log data completeness
+  - [~] 20.3 Write property test for training log data completeness
     - **Property 14: Training Log Data Completeness in History**
     - **Validates: Requirements 7.2**
   
-  - [ ] 20.4 Write unit tests for TrainingHistoryViewModel
+  - [~] 20.4 Write unit tests for TrainingHistoryViewModel
     - Test history loading
     - Test progress chart data
     - _Requirements: 7.1, 7.4_
 
 
-- [ ] 21. Implement ExerciseLibraryViewModel
+- [~] 21. Implement ExerciseLibraryViewModel
   - Create ExerciseLibraryViewModel for exercise browsing
   - Load exercises from ExerciseRepository
   - Implement search functionality
@@ -354,7 +354,7 @@ Este plano de implementação organiza o desenvolvimento do V-Trainer em fases i
   - Handle exercise detail display
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 22. Checkpoint - Test ViewModels
+- [~] 22. Checkpoint - Test ViewModels
   - Test all ViewModels with mock repositories
   - Verify state transitions are correct
   - Test error handling in ViewModels
