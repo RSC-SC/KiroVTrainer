@@ -10,7 +10,8 @@
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
     "logs": "firebase functions:log",
-    "test": "jest"
+    "test": "jest",
+    "seed": "npm run build && node lib/seedExercises.js"
   },
   "engines": {
     "node": "22"

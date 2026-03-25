@@ -49,11 +49,35 @@ class AuthViewModel : ViewModel() {
     }
 
     /**
+     * Signs in with email and password via Firebase Auth.
+     */
+    fun signInWithEmail(email: String, password: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            try {
+                firebaseAuth.signInWithEmailAndPassword(email, password).await()
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(e.message ?: "Falha no login com email")
+            }
+        }
+    }
+
+    /**
+     * Creates a new account with email and password via Firebase Auth.
+     */
+    fun registerWithEmail(email: String, password: String) {
+        viewModelScope.launch {
+            _authState.value = AuthState.Loading
+            try {
+                firebaseAuth.createUserWithEmailAndPassword(email, password).await()
+            } catch (e: Exception) {
+                _authState.value = AuthState.Error(e.message ?: "Falha ao criar conta")
+            }
+        }
+    }
+
+    /**
      * Signs in with a Google ID token obtained from the Google Sign-In flow.
-     * This is also the entry point for Samsung Account sign-in, which uses
-     * Google Play Services OAuth under the hood on Android.
-     *
-     * @param idToken The ID token from Google Sign-In / Samsung Account OAuth
      */
     fun signInWithGoogle(idToken: String) {
         viewModelScope.launch {
@@ -61,7 +85,6 @@ class AuthViewModel : ViewModel() {
             try {
                 val credential = GoogleAuthProvider.getCredential(idToken, null)
                 firebaseAuth.signInWithCredential(credential).await()
-                // authStateListener will update _authState on success
             } catch (e: Exception) {
                 _authState.value = AuthState.Error(e.message ?: "Google sign-in failed")
             }
@@ -70,13 +93,16 @@ class AuthViewModel : ViewModel() {
 
     /**
      * Signs in with a Samsung Account ID token.
-     * Samsung Account on Android uses Google Play Services OAuth, so this delegates
-     * to the same Firebase Google credential flow.
-     *
-     * @param idToken The ID token obtained from Samsung Account OAuth (Google Play Services)
      */
     fun signInWithSamsungAccount(idToken: String) {
         signInWithGoogle(idToken)
+    }
+
+    /**
+     * Called when the Google Sign-In intent returns an error before reaching Firebase.
+     */
+    fun onGoogleSignInError(message: String) {
+        _authState.value = AuthState.Error(message)
     }
 
     /**
@@ -84,7 +110,6 @@ class AuthViewModel : ViewModel() {
      */
     fun signOut() {
         firebaseAuth.signOut()
-        // authStateListener will update _authState to Unauthenticated
     }
 
     override fun onCleared() {

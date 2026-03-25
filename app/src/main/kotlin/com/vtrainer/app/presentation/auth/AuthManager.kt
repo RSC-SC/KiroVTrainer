@@ -2,6 +2,7 @@ package com.vtrainer.app.presentation.auth
 
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+import com.vtrainer.app.util.VTrainerLogger
 import kotlinx.coroutines.tasks.await
 
 /**
@@ -35,7 +36,29 @@ class AuthManager(
         return try {
             user.getIdToken(/* forceRefresh = */ true).await().token
         } catch (e: Exception) {
+            VTrainerLogger.logNetworkError(
+                context = "AuthManager.getIdToken",
+                errorCode = e.javaClass.simpleName,
+                message = "Failed to retrieve ID token"
+            )
             null
         }
+    }
+
+    /**
+     * Set the current user ID in Crashlytics for crash correlation.
+     * Only the opaque Firebase UID is set — never name, email, or other PII.
+     */
+    fun onUserSignedIn() {
+        firebaseAuth.currentUser?.uid?.let { uid ->
+            VTrainerLogger.setUserId(uid)
+        }
+    }
+
+    /**
+     * Clear the user ID from Crashlytics on sign-out.
+     */
+    fun onUserSignedOut() {
+        VTrainerLogger.clearUserId()
     }
 }

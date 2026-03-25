@@ -3,6 +3,7 @@ package com.vtrainer.app.services
 import android.content.Context
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
+import com.vtrainer.app.VTrainerApplication
 
 /**
  * WorkManager worker responsible for syncing pending training logs to Firestore.
@@ -14,9 +15,13 @@ import androidx.work.WorkerParameters
  */
 class SyncWorker(
     context: Context,
-    params: WorkerParameters,
-    private val trainingLogRepository: com.vtrainer.app.data.repositories.TrainingLogRepository
+    params: WorkerParameters
 ) : CoroutineWorker(context, params) {
+
+    // Obtain repository from Application class to support default WorkManager instantiation
+    private val trainingLogRepository by lazy {
+        (applicationContext as VTrainerApplication).trainingLogRepository
+    }
 
     override suspend fun doWork(): Result {
         return try {

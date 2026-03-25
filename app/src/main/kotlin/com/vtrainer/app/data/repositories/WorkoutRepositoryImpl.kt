@@ -8,6 +8,7 @@ import com.vtrainer.app.data.mappers.toDomain
 import com.vtrainer.app.data.mappers.toEntity
 import com.vtrainer.app.domain.models.SyncStatus
 import com.vtrainer.app.domain.models.WorkoutPlan
+import com.vtrainer.app.util.VTrainerLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.awaitClose
@@ -64,8 +65,9 @@ class WorkoutRepositoryImpl(
      * 
      * Requirements: 3.4, 12.1
      */
-    override fun getWorkoutPlans(): Flow<List<WorkoutPlan>> = callbackFlow {
-        val userId = getCurrentUserId()
+    override fun getWorkoutPlans(): Flow<List<WorkoutPlan>> {
+        val userId = auth.currentUser?.uid ?: return kotlinx.coroutines.flow.flowOf(emptyList())
+        return callbackFlow {
         
         // Set up Firestore listener for real-time updates
         val listenerRegistration: ListenerRegistration = firestore
@@ -74,7 +76,11 @@ class WorkoutRepositoryImpl(
             .addSnapshotListener { snapshot, error ->
                 if (error != null) {
                     // Log error but don't fail - continue with cached data
-                    println("Firestore listener error: ${error.message}")
+                    VTrainerLogger.logNetworkError(
+                        context = "WorkoutRepository.getWorkoutPlans",
+                        errorCode = error.code.toString(),
+                        message = "Firestore listener error"
+                    )
                     return@addSnapshotListener
                 }
                 
@@ -86,7 +92,11 @@ class WorkoutRepositoryImpl(
                             workoutPlanDao.insert(plan.toEntity(SyncStatus.SYNCED))
                         }
                     } catch (e: Exception) {
-                        println("Error parsing workout plan: ${e.message}")
+                        VTrainerLogger.logNetworkError(
+                            context = "WorkoutRepository.parseWorkoutPlan",
+                            errorCode = e.javaClass.simpleName,
+                            message = "Error parsing workout plan document"
+                        )
                     }
                 }
             }
@@ -101,6 +111,7 @@ class WorkoutRepositoryImpl(
         // Clean up listener when Flow is cancelled
         awaitClose {
             listenerRegistration.remove()
+        }
         }
     }
     
@@ -125,6 +136,7 @@ class WorkoutRepositoryImpl(
             workoutPlanDao.insert(userPlan.toEntity(SyncStatus.PENDING_SYNC))
             
             // Step 2: Attempt Firestore sync
+            val trace = VTrainerLogger.startTrace("workout_plan_sync")
             try {
                 val firestoreData = userPlan.toFirestoreMap()
                 firestore.collection(COLLECTION_WORKOUT_PLANS)
@@ -138,6 +150,7 @@ class WorkoutRepositoryImpl(
                     syncStatus = SyncStatus.SYNCED,
                     lastSyncAttempt = Clock.System.now().toEpochMilliseconds()
                 )
+                VTrainerLogger.logSyncSuccess("workout_plan_sync")
                 
                 Result.success(Unit)
             } catch (e: Exception) {
@@ -147,11 +160,15 @@ class WorkoutRepositoryImpl(
                     syncStatus = SyncStatus.SYNC_FAILED,
                     lastSyncAttempt = Clock.System.now().toEpochMilliseconds()
                 )
+                VTrainerLogger.logSyncException("workout_plan_sync", e)
                 
                 // Return success because local save worked (offline-first)
                 Result.success(Unit)
+            } finally {
+                VTrainerLogger.stopTrace(trace)
             }
         } catch (e: Exception) {
+            VTrainerLogger.logSyncException("workout_plan_save", e)
             Result.failure(e)
         }
     }
@@ -179,7 +196,11 @@ class WorkoutRepositoryImpl(
                     .await()
             } catch (e: Exception) {
                 // Log error but don't fail - local deletion succeeded
-                println("Firestore deletion failed: ${e.message}")
+                VTrainerLogger.logNetworkError(
+                    context = "WorkoutRepository.deleteWorkoutPlan",
+                    errorCode = e.javaClass.simpleName,
+                    message = "Firestore deletion failed"
+                )
             }
             
             Result.success(Unit)

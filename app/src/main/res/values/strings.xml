@@ -10,4 +10,7 @@
     <string name="complete_set">Completar Série</string>
     <string name="rest_timer">Descanso</string>
     <string name="finish_workout">Finalizar Treino</string>
+
+    <!-- Google OAuth Client ID (Web Client) from google-services.json (client_type: 3) -->
+    <string name="default_web_client_id">80534664329-4e9hs3d948piepsl2mg7r0vg92u0mqu2.apps.googleusercontent.com</string>
 </resources>

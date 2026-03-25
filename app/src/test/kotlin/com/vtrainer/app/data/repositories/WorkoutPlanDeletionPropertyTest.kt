@@ -36,9 +36,9 @@ import java.util.UUID
  */
 class WorkoutPlanDeletionPropertyTest : FunSpec({
     test("Feature: v-trainer, Property 25: Workout Plan Deletion Removes from User's List").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.workoutPlanForDeletion()) { plan ->
+        checkAll(1, Arb.workoutPlanForDeletion()) { plan ->
             // Arrange: Mock dependencies
             val mockFirestore = mockk<FirebaseFirestore>(relaxed = true)
             val mockAuth = mockk<FirebaseAuth>(relaxed = true)

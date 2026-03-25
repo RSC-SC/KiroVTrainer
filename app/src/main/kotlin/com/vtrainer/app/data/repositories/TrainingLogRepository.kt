@@ -70,4 +70,12 @@ interface TrainingLogRepository {
      * @return Result containing count of successfully synced logs
      */
     suspend fun syncPendingLogs(): Result<Int>
+
+    /**
+     * Returns a reactive count of training logs that are pending synchronization.
+     * Emits updates whenever the sync status of any log changes.
+     *
+     * Requirements: 12.5
+     */
+    fun getPendingSyncCount(): kotlinx.coroutines.flow.Flow<Int>
 }

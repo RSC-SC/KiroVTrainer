@@ -8,6 +8,7 @@ import com.vtrainer.app.data.repositories.TrainingLogRepository
 import com.vtrainer.app.data.repositories.WorkoutRepository
 import com.vtrainer.app.domain.models.PersonalRecord
 import com.vtrainer.app.domain.models.WorkoutPlan
+import com.vtrainer.app.util.VTrainerLogger
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -25,7 +26,7 @@ import kotlinx.datetime.toLocalDateTime
 /**
  * UI state for the Dashboard screen.
  *
- * Validates: Requirements 14.1, 14.2, 14.3, 14.4
+ * Validates: Requirements 14.1, 14.2, 14.3, 14.4, 12.3, 12.5
  */
 data class DashboardState(
     /** Next scheduled workout plan, or null if none is available. Requirement 14.1 */
@@ -39,7 +40,13 @@ data class DashboardState(
     /** True while data is being loaded. Requirement 14.2 */
     val isLoading: Boolean = true,
     /** Non-null error message when a load operation fails. */
-    val error: String? = null
+    val error: String? = null,
+    /** True when the device has no network connectivity. Requirement 12.3 */
+    val isOffline: Boolean = false,
+    /** Number of training logs waiting to be synced to Firestore. Requirement 12.5 */
+    val pendingSyncCount: Int = 0,
+    /** True while a manual sync operation is in progress. Requirement 12.5 */
+    val isSyncing: Boolean = false
 )
 
 /**
@@ -64,7 +71,13 @@ class DashboardViewModel(
     val state: StateFlow<DashboardState> = _state.asStateFlow()
 
     init {
-        loadDashboard()
+        // Only load if a user is already authenticated (avoids crash before login)
+        if (auth.currentUser != null) {
+            loadDashboard()
+            observePendingSyncCount()
+        } else {
+            _state.value = _state.value.copy(isLoading = false)
+        }
     }
 
     /**
@@ -73,6 +86,43 @@ class DashboardViewModel(
      */
     fun refresh() {
         loadDashboard()
+    }
+
+    /**
+     * Dismisses the current error message.
+     */
+    fun dismissError() {
+        _state.value = _state.value.copy(error = null)
+    }
+
+    /**
+     * Manually triggers synchronization of all pending training logs.
+     *
+     * Validates: Requirement 12.5
+     */
+    fun retrySyncPendingLogs() {
+        if (_state.value.isSyncing) return
+        viewModelScope.launch {
+            _state.value = _state.value.copy(isSyncing = true, error = null)
+            val result = trainingLogRepository.syncPendingLogs()
+            if (result.isSuccess) {
+                val syncedCount = result.getOrDefault(0)
+                VTrainerLogger.logSyncSuccess("dashboard_manual_sync", syncedCount)
+            } else {
+                VTrainerLogger.logSyncFailure(
+                    operation = "dashboard_manual_sync",
+                    errorCode = result.exceptionOrNull()?.javaClass?.simpleName ?: "UNKNOWN"
+                )
+            }
+            _state.value = _state.value.copy(
+                isSyncing = false,
+                error = if (result.isFailure)
+                    result.exceptionOrNull()?.message ?: "Falha ao sincronizar treinos"
+                else null
+            )
+            // Refresh pending count after sync attempt
+            observePendingSyncCount()
+        }
     }
 
     private fun loadDashboard() {
@@ -94,7 +144,7 @@ class DashboardViewModel(
                 val weeklyWorkoutCount = WeeklyStatsCalculator.computeWeeklyWorkoutCount(logs, weekStart)
                 val weeklyTotalVolume = WeeklyStatsCalculator.computeWeeklyVolume(logs, weekStart)
 
-                DashboardState(
+                _state.value.copy(
                     nextWorkout = nextWorkout,
                     weeklyWorkoutCount = weeklyWorkoutCount,
                     weeklyTotalVolume = weeklyTotalVolume,
@@ -104,15 +154,36 @@ class DashboardViewModel(
                 )
             }
                 .catch { e ->
+                    VTrainerLogger.logNetworkError(
+                        context = "DashboardViewModel.loadDashboard",
+                        errorCode = e.javaClass.simpleName,
+                        message = "Failed to load dashboard data"
+                    )
                     emit(
-                        DashboardState(
+                        _state.value.copy(
                             isLoading = false,
-                            error = e.message ?: "Failed to load dashboard data"
+                            error = e.message ?: "Failed to load dashboard data",
+                            isOffline = true
                         )
                     )
                 }
                 .collect { newState ->
                     _state.value = newState
+                }
+        }
+    }
+
+    /**
+     * Observes the count of pending-sync training logs reactively.
+     *
+     * Validates: Requirement 12.5
+     */
+    private fun observePendingSyncCount() {
+        viewModelScope.launch {
+            trainingLogRepository.getPendingSyncCount()
+                .catch { /* ignore — best-effort */ }
+                .collect { count ->
+                    _state.value = _state.value.copy(pendingSyncCount = count)
                 }
         }
     }

@@ -118,4 +118,22 @@ interface ExerciseDao {
      */
     @Query("SELECT MIN(cachedAt) FROM exercises")
     suspend fun getOldestCacheTimestamp(): Long?
+
+    /**
+     * Get exercises ordered by cachedAt ascending (least recently cached first).
+     * Used for LRU eviction: returns the N oldest entries to delete.
+     *
+     * Requirements: 9.2, 10.2 - Performance optimization via cache size limits
+     */
+    @Query("SELECT * FROM exercises ORDER BY cachedAt ASC LIMIT :limit")
+    suspend fun getOldestExercises(limit: Int): List<ExerciseEntity>
+
+    /**
+     * Delete exercises by their IDs.
+     * Used for LRU eviction after selecting the oldest entries.
+     *
+     * Requirements: 9.2, 10.2 - Performance optimization via cache size limits
+     */
+    @Query("DELETE FROM exercises WHERE exerciseId IN (:ids)")
+    suspend fun deleteByIds(ids: List<String>)
 }

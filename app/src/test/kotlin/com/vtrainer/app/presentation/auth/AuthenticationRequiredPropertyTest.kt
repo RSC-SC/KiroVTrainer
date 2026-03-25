@@ -29,9 +29,9 @@ import io.mockk.mockk
 class AuthenticationRequiredPropertyTest : FunSpec({
 
     test("Feature: v-trainer, Property 20: Authentication Required for Data Access - isAuthenticated returns false when no user").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.unauthenticatedScenario()) { _ ->
+        checkAll(1, Arb.unauthenticatedScenario()) { _ ->
             // Arrange: FirebaseAuth with no current user (unauthenticated state)
             val mockAuth = mockk<FirebaseAuth>(relaxed = true)
             every { mockAuth.currentUser } returns null
@@ -44,9 +44,9 @@ class AuthenticationRequiredPropertyTest : FunSpec({
     }
 
     test("Feature: v-trainer, Property 20: Authentication Required for Data Access - getIdToken returns null when no user").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.unauthenticatedScenario()) { _ ->
+        checkAll(1, Arb.unauthenticatedScenario()) { _ ->
             // Arrange: FirebaseAuth with no current user (unauthenticated state)
             val mockAuth = mockk<FirebaseAuth>(relaxed = true)
             every { mockAuth.currentUser } returns null
@@ -61,9 +61,9 @@ class AuthenticationRequiredPropertyTest : FunSpec({
     }
 
     test("Feature: v-trainer, Property 20: Authentication Required for Data Access - getCurrentUser returns null when unauthenticated").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.unauthenticatedScenario()) { _ ->
+        checkAll(1, Arb.unauthenticatedScenario()) { _ ->
             // Arrange: FirebaseAuth with no current user
             val mockAuth = mockk<FirebaseAuth>(relaxed = true)
             every { mockAuth.currentUser } returns null

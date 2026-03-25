@@ -9,6 +9,7 @@ import com.vtrainer.app.domain.models.Equipment
 import com.vtrainer.app.domain.models.Exercise
 import com.vtrainer.app.domain.models.MediaType
 import com.vtrainer.app.domain.models.MuscleGroup
+import com.vtrainer.app.util.VTrainerLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
@@ -38,6 +39,14 @@ class ExerciseRepositoryImpl(
 
     private companion object {
         const val COLLECTION_EXERCISES = "exercises"
+
+        /**
+         * Maximum number of exercises to keep in the local Room cache.
+         * When exceeded, the oldest entries (by cachedAt) are evicted (LRU strategy).
+         *
+         * Requirements: 9.2, 10.2 - Cache size limit for performance and battery optimization
+         */
+        const val MAX_CACHE_SIZE = 500
     }
 
     /**
@@ -86,10 +95,20 @@ class ExerciseRepositoryImpl(
     /**
      * Fetch exercises from Firestore and update the Room cache.
      * Silently ignores errors to preserve offline-first behavior.
+     *
+     * Uses `.orderBy("name")` to leverage the (muscleGroup, name) composite index
+     * and avoid full-collection scans.
+     *
+     * After inserting, enforces the LRU cache size limit by evicting the oldest
+     * entries when the cache exceeds MAX_CACHE_SIZE.
+     *
+     * Requirements: 9.2, 10.2 - Optimized Firestore query + LRU eviction
      */
     private suspend fun refreshCacheFromFirestore() {
+        val trace = VTrainerLogger.startTrace("exercise_cache_refresh")
         try {
             val snapshot = firestore.collection(COLLECTION_EXERCISES)
+                .orderBy("name") // leverage (muscleGroup, name) composite index
                 .get()
                 .await()
 
@@ -97,7 +116,11 @@ class ExerciseRepositoryImpl(
                 try {
                     document.toExercise()
                 } catch (e: Exception) {
-                    println("Error parsing exercise document ${document.id}: ${e.message}")
+                    VTrainerLogger.logNetworkError(
+                        context = "ExerciseRepository.parseExercise",
+                        errorCode = e.javaClass.simpleName,
+                        message = "Error parsing exercise document"
+                    )
                     null
                 }
             }
@@ -106,10 +129,40 @@ class ExerciseRepositoryImpl(
                 val cachedAt = System.currentTimeMillis()
                 val entities = exercises.map { it.toEntity(cachedAt) }
                 roomDao.insertAll(entities)
+                VTrainerLogger.addTraceMetric(trace, "exercises_cached", exercises.size.toLong())
+
+                // Enforce LRU cache size limit
+                evictOldestIfNeeded()
             }
         } catch (e: Exception) {
             // Firestore unavailable — cached data will continue to be served
-            println("Firestore exercise fetch failed: ${e.message}")
+            VTrainerLogger.logNetworkError(
+                context = "ExerciseRepository.refreshCache",
+                errorCode = e.javaClass.simpleName,
+                message = "Firestore exercise fetch failed"
+            )
+        } finally {
+            VTrainerLogger.stopTrace(trace)
+        }
+    }
+
+    /**
+     * Evicts the oldest cached exercises when the cache exceeds MAX_CACHE_SIZE.
+     *
+     * Uses LRU (Least Recently Used) strategy: exercises with the smallest
+     * cachedAt timestamp are removed first.
+     *
+     * Requirements: 9.2, 10.2 - LRU eviction for cache size management
+     */
+    private suspend fun evictOldestIfNeeded() {
+        val count = roomDao.getExerciseCount()
+        if (count > MAX_CACHE_SIZE) {
+            val excess = count - MAX_CACHE_SIZE
+            val toEvict = roomDao.getOldestExercises(excess)
+            if (toEvict.isNotEmpty()) {
+                roomDao.deleteByIds(toEvict.map { it.exerciseId })
+                VTrainerLogger.d(message = "LRU eviction: removed $excess exercises from cache (limit=$MAX_CACHE_SIZE)")
+            }
         }
     }
 }

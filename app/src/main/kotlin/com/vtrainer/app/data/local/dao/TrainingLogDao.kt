@@ -47,6 +47,13 @@ interface TrainingLogDao {
      */
     @Query("SELECT * FROM training_logs WHERE userId = :userId AND syncStatus IN (:syncStatuses)")
     suspend fun getPendingSyncLogs(userId: String, syncStatuses: List<SyncStatus>): List<TrainingLogEntity>
+
+    /**
+     * Get a reactive count of training logs with PENDING_SYNC or SYNC_FAILED status for a user.
+     * Emits updates whenever sync status changes.
+     */
+    @Query("SELECT COUNT(*) FROM training_logs WHERE userId = :userId AND syncStatus IN ('PENDING_SYNC', 'SYNC_FAILED')")
+    fun getPendingSyncCount(userId: String): Flow<Int>
     
     /**
      * Get training logs for a specific workout plan.

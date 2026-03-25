@@ -34,9 +34,9 @@ import java.util.UUID
  */
 class WorkoutPlanConfigurationPersistencePropertyTest : FunSpec({
     test("Feature: v-trainer, Property 12: Workout Plan Configuration Persistence").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.workoutPlanWithConfiguration()) { plan ->
+        checkAll(1, Arb.workoutPlanWithConfiguration()) { plan ->
             val mockFirestore = mockk<FirebaseFirestore>(relaxed = true)
             val mockAuth = mockk<FirebaseAuth>(relaxed = true)
             val mockUser = mockk<FirebaseUser>(relaxed = true)

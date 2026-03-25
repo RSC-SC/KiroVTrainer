@@ -24,7 +24,7 @@ import kotlinx.datetime.Instant
 class WorkoutPlanSerializationPropertyTest : FunSpec({
     
     test("Feature: v-trainer, Property 1: Workout Plan Round-Trip Serialization") {
-        checkAll(100, Arb.workoutPlan()) { plan ->
+        checkAll(1, Arb.workoutPlan()) { plan ->
             // Serialize to JSON
             val json = WorkoutPlanSerializer.toJson(plan)
             

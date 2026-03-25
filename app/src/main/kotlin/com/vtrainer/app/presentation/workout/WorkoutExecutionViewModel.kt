@@ -21,7 +21,7 @@ import java.util.UUID
 /**
  * UI state for the Workout Execution screen.
  *
- * Validates: Requirements 4.1, 4.2, 4.3, 4.5, 4.6
+ * Validates: Requirements 4.1, 4.2, 4.3, 4.5, 4.6, 12.3
  */
 data class WorkoutExecutionState(
     /** The active workout plan being executed. Requirement 4.1 */
@@ -49,7 +49,9 @@ data class WorkoutExecutionState(
     /** Weight override for the current set (null = use plan default). Requirement 4.5 */
     val adjustedWeight: Double? = null,
     /** Reps override for the current set (null = use plan default). Requirement 4.5 */
-    val adjustedReps: Int? = null
+    val adjustedReps: Int? = null,
+    /** True when the device is offline; workout data will be cached locally. Requirement 12.3 */
+    val isOffline: Boolean = false
 )
 
 /**
@@ -148,6 +150,13 @@ class WorkoutExecutionViewModel(
     }
 
     /**
+     * Dismisses the current error message.
+     */
+    fun dismissError() {
+        _state.value = _state.value.copy(error = null)
+    }
+
+    /**
      * Adjusts the reps for the current set during the session.
      *
      * Requirement 4.5 – allow reps adjustment during training session.
@@ -211,9 +220,11 @@ class WorkoutExecutionViewModel(
                     isWorkoutComplete = true
                 )
             } else {
+                val errorMsg = result.exceptionOrNull()?.message ?: "Failed to save workout"
                 _state.value.copy(
                     isLoading = false,
-                    error = result.exceptionOrNull()?.message ?: "Failed to save workout"
+                    error = errorMsg,
+                    isOffline = true
                 )
             }
         }

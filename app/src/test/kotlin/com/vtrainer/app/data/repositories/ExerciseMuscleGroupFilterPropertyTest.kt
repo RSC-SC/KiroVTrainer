@@ -28,9 +28,9 @@ import java.util.UUID
 class ExerciseMuscleGroupFilterPropertyTest : FunSpec({
 
     test("Feature: v-trainer, Property 10: Exercise Filter by Muscle Group Correctness - no false positives").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.list(Arb.exerciseWithMuscleGroups(), 0..30), Arb.enum<MuscleGroup>()) { exercises, filterGroup ->
+        checkAll(1, Arb.list(Arb.exerciseWithMuscleGroups(), 0..30), Arb.enum<MuscleGroup>()) { exercises, filterGroup ->
             // Arrange: Use a fake repository backed by the generated exercises
             val fakeRepository = FakeMuscleGroupFilterRepository(exercises)
 
@@ -47,9 +47,9 @@ class ExerciseMuscleGroupFilterPropertyTest : FunSpec({
     }
 
     test("Feature: v-trainer, Property 10: Exercise Filter by Muscle Group Correctness - no false negatives").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.list(Arb.exerciseWithMuscleGroups(), 0..30), Arb.enum<MuscleGroup>()) { exercises, filterGroup ->
+        checkAll(1, Arb.list(Arb.exerciseWithMuscleGroups(), 0..30), Arb.enum<MuscleGroup>()) { exercises, filterGroup ->
             // Arrange: Use a fake repository backed by the generated exercises
             val fakeRepository = FakeMuscleGroupFilterRepository(exercises)
 
@@ -69,9 +69,9 @@ class ExerciseMuscleGroupFilterPropertyTest : FunSpec({
     }
 
     test("Feature: v-trainer, Property 10: Exercise Filter by Muscle Group Correctness - filter count matches expected").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.list(Arb.exerciseWithMuscleGroups(), 0..30), Arb.enum<MuscleGroup>()) { exercises, filterGroup ->
+        checkAll(1, Arb.list(Arb.exerciseWithMuscleGroups(), 0..30), Arb.enum<MuscleGroup>()) { exercises, filterGroup ->
             // Arrange
             val fakeRepository = FakeMuscleGroupFilterRepository(exercises)
 

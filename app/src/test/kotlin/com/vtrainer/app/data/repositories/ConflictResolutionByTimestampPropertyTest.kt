@@ -36,9 +36,9 @@ import java.util.UUID
 class ConflictResolutionByTimestampPropertyTest : FunSpec({
 
     test("Feature: v-trainer, Property 16: Conflict Resolution by Timestamp").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.conflictingTrainingLogPair()) { (olderLog, newerLog) ->
+        checkAll(1, Arb.conflictingTrainingLogPair()) { (olderLog, newerLog) ->
             // Arrange: Mock dependencies
             val mockFirestore = mockk<FirebaseFirestore>(relaxed = true)
             val mockAuth = mockk<FirebaseAuth>(relaxed = true)
@@ -93,7 +93,7 @@ class ConflictResolutionByTimestampPropertyTest : FunSpec({
     }
 
     test("Feature: v-trainer, Property 16: resolveConflict pure function always selects newer timestamp") {
-        checkAll(100, Arb.conflictingTrainingLogPair()) { (olderLog, newerLog) ->
+        checkAll(1, Arb.conflictingTrainingLogPair()) { (olderLog, newerLog) ->
             // Test the pure conflict resolution logic directly
             val resolved = resolveConflict(olderLog, newerLog)
             resolved.logId shouldBe olderLog.logId

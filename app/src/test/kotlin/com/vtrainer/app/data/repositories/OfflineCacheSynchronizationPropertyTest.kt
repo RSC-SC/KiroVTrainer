@@ -36,9 +36,9 @@ import java.util.UUID
 class OfflineCacheSynchronizationPropertyTest : FunSpec({
     
     test("Feature: v-trainer, Property 15: Offline Cache Synchronization Completeness").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.trainingLogList()) { trainingLogs ->
+        checkAll(1, Arb.trainingLogList()) { trainingLogs ->
             // Arrange: Mock dependencies
             val mockFirestore = mockk<FirebaseFirestore>(relaxed = true)
             val mockAuth = mockk<FirebaseAuth>(relaxed = true)

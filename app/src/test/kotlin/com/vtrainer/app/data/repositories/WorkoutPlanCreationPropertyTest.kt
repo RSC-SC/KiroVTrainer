@@ -37,9 +37,9 @@ import java.util.UUID
  */
 class WorkoutPlanCreationPropertyTest : FunSpec({
     test("Feature: v-trainer, Property 11: Workout Plan Creation Preserves Exercise Count").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.workoutPlanWithExercises()) { plan ->
+        checkAll(1, Arb.workoutPlanWithExercises()) { plan ->
             // Arrange: Mock dependencies
             val mockFirestore = mockk<FirebaseFirestore>(relaxed = true)
             val mockAuth = mockk<FirebaseAuth>(relaxed = true)

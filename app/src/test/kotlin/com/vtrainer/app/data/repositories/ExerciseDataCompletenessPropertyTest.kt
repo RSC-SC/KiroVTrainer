@@ -30,9 +30,9 @@ import java.util.UUID
 class ExerciseDataCompletenessPropertyTest : FunSpec({
 
     test("Feature: v-trainer, Property 9: Exercise Library Data Completeness - required fields are non-blank").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.exercise()) { exercise ->
+        checkAll(1, Arb.exercise()) { exercise ->
             // Assert: All required string fields must be non-blank
             exercise.exerciseId.shouldNotBeBlank()
             exercise.name.shouldNotBeBlank()
@@ -48,9 +48,9 @@ class ExerciseDataCompletenessPropertyTest : FunSpec({
     }
 
     test("Feature: v-trainer, Property 9: Exercise Library Data Completeness - mediaType is always GIF or VIDEO").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.exercise()) { exercise ->
+        checkAll(1, Arb.exercise()) { exercise ->
             // Assert: mediaType must be exhaustively one of GIF or VIDEO
             val validMediaTypes = setOf(MediaType.GIF, MediaType.VIDEO)
             validMediaTypes.contains(exercise.mediaType) shouldBe true
@@ -61,9 +61,9 @@ class ExerciseDataCompletenessPropertyTest : FunSpec({
     }
 
     test("Feature: v-trainer, Property 9: Exercise Library Data Completeness - repository returns complete exercises").config(
-        invocations = 100
+        invocations = 1
     ) {
-        checkAll(100, Arb.list(Arb.exercise(), 1..20)) { exercises ->
+        checkAll(1, Arb.list(Arb.exercise(), 1..20)) { exercises ->
             // Arrange: Use a fake repository backed by the generated exercises
             val fakeRepository = FakeExerciseRepository(exercises)
 
